@@ -1,11 +1,12 @@
 services:
   core:
-    image: ghcr.io/bbk66669/core:latest   # ← 只拉镜像
+    image: ghcr.io/bbk66669/core:latest   # ← 与 workflow 同步
+    restart: always                       # 灰度跑长期时建议加
     env_file:
       - .env
+    environment:
+      TRAIL_SL_PCT: "0.003"
+      LLM_COOLDOWN: "600"
     volumes:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
-    environment:
-      TRAIL_SL_PCT: 0.003          # == configs/gray.yaml 的那几项
-      LLM_COOLDOWN: 600
-    command: ["python", "ws_main.py", "--gray"]
+    # command: ["python","ws_main.py","--gray"]  # 若 Dockerfile 已有 CMD，可删
