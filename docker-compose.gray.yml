@@ -1,5 +1,10 @@
 services:
   core:
+    image: ghcr.io/bbk66669/core:latest   # ← 只拉镜像
+    env_file:
+      - .env
+    volumes:
+      - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
     environment:
       TRAIL_SL_PCT: 0.003          # == configs/gray.yaml 的那几项
       LLM_COOLDOWN: 600

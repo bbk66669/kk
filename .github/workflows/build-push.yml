@@ -1,0 +1,34 @@
+name: build-push
+
+on:
+  push:
+    branches: [ main ]          # 只有 main 才触发正式 build
+
+env:
+  IMAGE_NAME: ghcr.io/bbk66669/core
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:                 # 让 Actions 拿到写 package 权限
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CI_GH_PAT }}   # 你的 classic token，需有 write:packages
+
+      - name: Build & push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}

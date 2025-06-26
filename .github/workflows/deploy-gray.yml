@@ -34,14 +34,20 @@ jobs:
       # 通过 SSH 在远端东京服务器上做灰度部署
       - name: Deploy Gray on Remote
         run: |
-          ssh root@202.182.107.90 '
+          ssh root@202.182.107.90 <<'EOS'
             set -e
+            export GHCR_PAT='${{ secrets.CI_GH_PAT }}'
+
+            # 1. 拉最新 gray 代码
             cd /root/kk
-            # 1) 取最新代码
-            git fetch origin gray
-            # 2) 丢弃本地改动，强行对齐 GitHub
+            git fetch origin
+            git checkout gray
             git reset --hard origin/gray
-            # 3) 继续部署
-            docker compose -f docker-compose.gray.yml pull
-            docker compose -f docker-compose.gray.yml up -d --force-recreate
-          '
+
+            # 2. 登录 GHCR（只需一次，token 有读权限即可）
+            echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
+
+            # 3. 拉取最新镜像 & 重建容器
+            docker compose -f docker-compose.gray.yml pull core
+            docker compose -f docker-compose.gray.yml up -d --force-recreate core
+          EOS
