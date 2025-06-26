@@ -1,4 +1,4 @@
-name: deploy-gray
+﻿name: deploy-gray
 
 on:
   push:
@@ -44,7 +44,7 @@ jobs:
             git checkout gray
             git reset --hard origin/gray
 
-            # 2. 登录 GHCR（只需一次，token 有读权限即可）
+            # 2. 登录 GHCR
             echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
 
             # 3. 拉取最新镜像 & 重建容器

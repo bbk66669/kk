@@ -1,0 +1,18 @@
+# Python 编译产物
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 日志 & 临时
+*.log
+*.tmp
+optimizer.log
+trade_loop.log
+
+# 本地虚拟环境
+venv/
+.env
+
+# 纯演示脚本（如果你确定不要）
+src/demo/

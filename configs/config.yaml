@@ -1,0 +1,30 @@
+risk:
+  trail_sl_pct: 0.005      # 0.5 % – 可 SIGHUP 动态调整
+
+llm:
+  cooldown: 300             # 秒，可用环境变量 LLM_COOLDOWN 覆盖
+
+signal:
+  n_same: 2                # 连续同向多少次才触发
+  throttle: 30             # 秒，信号节流
+
+price_consumer:
+  pct_trigger: 0.003       # 行情突变阈值
+  agg_window: 1.0          # 秒，聚合窗口
+
+trade:
+  symbol: ETH-USDT-SWAP
+  qty: 1                   # 张；若设 0 → 由 Broker 自动用 risk.manager 计算
+  leverage: 5
+
+redis:
+  host: localhost
+  port: 6379
+
+intent:
+  ttl: 120          # 秒
+
+event_cls:          # 显著事件阈值
+  pct_th: 0.004
+  accel_th: 2
+  vol_th: 3
