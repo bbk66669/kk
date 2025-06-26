@@ -1,8 +1,6 @@
 services:
   core:
-    build: .
-    env_file:
-      - .env
-    volumes:
-      - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
-    # 其余保持和主 compose 一致
+    environment:
+      TRAIL_SL_PCT: 0.003          # == configs/gray.yaml 的那几项
+      LLM_COOLDOWN: 600
+    command: ["python", "ws_main.py", "--gray"]
