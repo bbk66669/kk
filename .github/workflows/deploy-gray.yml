@@ -35,10 +35,13 @@ jobs:
       - name: Deploy Gray on Remote
         run: |
           ssh root@202.182.107.90 '
-            cd /root/kk &&
-            git fetch origin &&
-            git checkout gray &&
-            git pull origin gray &&
-            docker compose -f docker-compose.gray.yml pull &&
+            set -e
+            cd /root/kk
+            # 1) 取最新代码
+            git fetch origin gray
+            # 2) 丢弃本地改动，强行对齐 GitHub
+            git reset --hard origin/gray
+            # 3) 继续部署
+            docker compose -f docker-compose.gray.yml pull
             docker compose -f docker-compose.gray.yml up -d --force-recreate
           '
