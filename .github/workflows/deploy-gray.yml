@@ -11,13 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- 将 gray.yaml 复制为 override 文件（留在 Git 目录，用 git pull 同步即可） ---
       - name: prepare override config
         run: |
           rm -rf configs/config.override.yaml
           cp configs/gray.yaml configs/config.override.yaml
 
-      # --- SSH Key for remote host ---
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
@@ -28,35 +26,29 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
 
-      # --- SSH into server and deploy ---
       - name: Deploy Gray on Remote
         run: |
           ssh root@202.182.107.90 <<'EOS'
             set -e
-
             GHCR_PAT='${{ secrets.CI_GH_PAT }}'
 
             cd /root/kk
-            # 1. 拉取最新 gray 分支代码（含 config.override.yaml）
             git fetch origin gray
             git reset --hard origin/gray
 
-            # 2. 生成最新 .env（覆盖旧）
+            # 生成 .env
             cat > .env <<'ENV'
-OKX_API_KEY=${{ secrets.OKX_API_KEY }}
-OKX_API_SECRET=${{ secrets.OKX_API_SECRET }}
-OKX_API_PASSPHRASE=${{ secrets.OKX_API_PASSPHRASE }}
-OKX_API_FLAG=${{ secrets.OKX_API_FLAG }}
+            OKX_API_KEY=${{ secrets.OKX_API_KEY }}
+            OKX_API_SECRET=${{ secrets.OKX_API_SECRET }}
+            OKX_API_PASSPHRASE=${{ secrets.OKX_API_PASSPHRASE }}
+            OKX_API_FLAG=${{ secrets.OKX_API_FLAG }}
 
-WEAVIATE_URL=http://weaviate:8080
-MEILISEARCH_URL=http://meilisearch:7700
-REDIS_URL=redis://redis:6379/0
-ENV
+            WEAVIATE_URL=http://weaviate:8080
+            MEILISEARCH_URL=http://meilisearch:7700
+            REDIS_URL=redis://redis:6379/0
+            ENV
 
-            # 3. 登录 GHCR（只读即可）
             echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
-
-            # 4. 拉取最新镜像并重启 core（灰度）
             docker compose -f docker-compose.gray.yml pull core
             docker compose -f docker-compose.gray.yml up -d --force-recreate core
           EOS
