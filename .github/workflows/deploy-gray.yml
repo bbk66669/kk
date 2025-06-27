@@ -34,8 +34,8 @@ jobs:
             git fetch origin gray
             git reset --hard origin/gray
 
-            # 生成 .env（无前导空格）
-cat > .env <<'ENV'
+            # 生成 .env
+            cat > .env <<'ENV'
 OKX_API_KEY=${{ secrets.OKX_API_KEY }}
 OKX_API_SECRET=${{ secrets.OKX_API_SECRET }}
 OKX_API_PASSPHRASE=${{ secrets.OKX_API_PASSPHRASE }}
