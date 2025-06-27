@@ -27,15 +27,15 @@ jobs:
       - name: Deploy Gray on Remote
         run: |
           ssh root@202.182.107.90 <<'EOS'
-            set -e
-            GHCR_PAT='${{ secrets.CI_GH_PAT }}'
+set -e
+GHCR_PAT='${{ secrets.CI_GH_PAT }}'
 
-            cd /root/kk
-            git fetch origin gray
-            git reset --hard origin/gray
+cd /root/kk
+git fetch origin gray
+git reset --hard origin/gray
 
-            # 生成 .env
-            cat > .env <<'ENV'
+# 生成 .env
+cat > .env <<'ENV'
 OKX_API_KEY=${{ secrets.OKX_API_KEY }}
 OKX_API_SECRET=${{ secrets.OKX_API_SECRET }}
 OKX_API_PASSPHRASE=${{ secrets.OKX_API_PASSPHRASE }}
@@ -47,7 +47,7 @@ REDIS_URL=redis://redis:6379/0
 USE_LOCAL_LLM=false
 ENV
 
-            echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
-            docker compose -f docker-compose.gray.yml pull core
-            docker compose -f docker-compose.gray.yml up -d --force-recreate core
+echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
+docker compose -f docker-compose.gray.yml pull core
+docker compose -f docker-compose.gray.yml up -d --force-recreate core
 EOS
