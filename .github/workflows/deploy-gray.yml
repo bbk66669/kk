@@ -1,3 +1,4 @@
+cat << 'EOF' > .github/workflows/deploy-gray.yml
 name: deploy-gray
 
 on:
@@ -30,26 +31,25 @@ jobs:
         run: |
           ssh root@202.182.107.90 <<'EOS'
             set -e
-            export GHCR_PAT='${{ secrets.CI_GH_PAT }}'
+            GHCR_PAT='${{ secrets.CI_GH_PAT }}'
 
             cd /root/kk
             git fetch origin gray
             git reset --hard origin/gray
 
-            # 写入 .env（顶格无缩进）
-            cat > .env <<'EOV'
+            cat > .env <<'ENV'
 OKX_API_KEY=${{ secrets.OKX_API_KEY }}
 OKX_API_SECRET=${{ secrets.OKX_API_SECRET }}
 OKX_API_PASSPHRASE=${{ secrets.OKX_API_PASSPHRASE }}
 OKX_API_FLAG=${{ secrets.OKX_API_FLAG }}
-
 WEAVIATE_URL=http://weaviate:8080
 MEILISEARCH_URL=http://meilisearch:7700
 REDIS_URL=redis://redis:6379/0
 USE_LOCAL_LLM=false
-EOV
+ENV
 
             echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
             docker compose -f docker-compose.gray.yml pull core
             docker compose -f docker-compose.gray.yml up -d --force-recreate core
           EOS
+EOF
