@@ -1,4 +1,3 @@
-cat << 'EOF' > .github/workflows/deploy-gray.yml
 name: deploy-gray
 
 on:
@@ -28,20 +27,26 @@ jobs:
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
 
       - name: Deploy Gray on Remote
+        env:
+          GHCR_PAT: ${{ secrets.CI_GH_PAT }}
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_API_PASSPHRASE: ${{ secrets.OKX_API_PASSPHRASE }}
+          OKX_API_FLAG: ${{ secrets.OKX_API_FLAG }}
         run: |
           ssh root@202.182.107.90 <<'EOS'
-            set -e
-            GHCR_PAT='${{ secrets.CI_GH_PAT }}'
+            set -eo pipefail
 
             cd /root/kk
             git fetch origin gray
             git reset --hard origin/gray
 
-            cat > .env <<'ENV'
-OKX_API_KEY=${{ secrets.OKX_API_KEY }}
-OKX_API_SECRET=${{ secrets.OKX_API_SECRET }}
-OKX_API_PASSPHRASE=${{ secrets.OKX_API_PASSPHRASE }}
-OKX_API_FLAG=${{ secrets.OKX_API_FLAG }}
+            # 写入 .env 文件（用远端shell变量展开）
+            cat > .env <<ENV
+OKX_API_KEY=$OKX_API_KEY
+OKX_API_SECRET=$OKX_API_SECRET
+OKX_API_PASSPHRASE=$OKX_API_PASSPHRASE
+OKX_API_FLAG=$OKX_API_FLAG
 WEAVIATE_URL=http://weaviate:8080
 MEILISEARCH_URL=http://meilisearch:7700
 REDIS_URL=redis://redis:6379/0
@@ -52,4 +57,3 @@ ENV
             docker compose -f docker-compose.gray.yml pull core
             docker compose -f docker-compose.gray.yml up -d --force-recreate core
           EOS
-EOF
