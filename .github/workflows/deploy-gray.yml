@@ -41,7 +41,6 @@ jobs:
             git fetch origin gray
             git reset --hard origin/gray
 
-            # 写入 .env 文件（用远端shell变量展开）
             cat > .env <<ENV
 OKX_API_KEY=$OKX_API_KEY
 OKX_API_SECRET=$OKX_API_SECRET
