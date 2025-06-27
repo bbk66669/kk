@@ -46,6 +46,7 @@ jobs:
             WEAVIATE_URL=http://weaviate:8080
             MEILISEARCH_URL=http://meilisearch:7700
             REDIS_URL=redis://redis:6379/0
+            USE_LOCAL_LLM=false                     # ⬅ 新增
             ENV
 
             echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
