@@ -9,4 +9,9 @@ services:
       LLM_COOLDOWN: "600"
     volumes:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
-    # command: ["python","ws_main.py","--gray"]  # 若 Dockerfile 已有 CMD，可删
+    networks:
+      - windking-net          # 👈 挂到同一网络
+
+networks:
+  windking-net:               # 👈 声明 external
+    external: true
