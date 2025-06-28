@@ -19,6 +19,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Deploy Gray on Remote
         env:
           GHCR_PAT: ${{ secrets.CI_GH_PAT }}
@@ -33,20 +34,19 @@ jobs:
             git fetch origin gray
             git reset --hard origin/gray
 
-            # 生成 .env
-            cat > .env <<'ENV'
-            OKX_API_KEY=${OKX_API_KEY}
-            OKX_API_SECRET=${OKX_API_SECRET}
-            OKX_API_PASSPHRASE=${OKX_API_PASSPHRASE}
-            OKX_API_FLAG=${OKX_API_FLAG}
+          cat > .env <<'ENV'
+          OKX_API_KEY=${OKX_API_KEY}
+          OKX_API_SECRET=${OKX_API_SECRET}
+          OKX_API_PASSPHRASE=${OKX_API_PASSPHRASE}
+          OKX_API_FLAG=${OKX_API_FLAG}
 
-            WEAVIATE_URL=http://weaviate:8080
-            MEILISEARCH_URL=http://meilisearch:7700
-            REDIS_URL=redis://redis:6379/0
-            USE_LOCAL_LLM=false
-            ENV
+          WEAVIATE_URL=http://weaviate:8080
+          MEILISEARCH_URL=http://meilisearch:7700
+          REDIS_URL=redis://redis:6379/0
+          USE_LOCAL_LLM=false
+          ENV
 
-            echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
-            docker compose -f docker-compose.gray.yml pull core
-            docker compose -f docker-compose.gray.yml up -d --force-recreate core
-          EOS
+          echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
+          docker compose -f docker-compose.gray.yml pull core
+          docker compose -f docker-compose.gray.yml up -d --force-recreate core
+          EOS      
