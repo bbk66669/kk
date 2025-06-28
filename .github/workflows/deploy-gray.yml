@@ -19,12 +19,6 @@ jobs:
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Add remote to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
-
       - name: Deploy Gray on Remote
         env:
           GHCR_PAT: ${{ secrets.CI_GH_PAT }}
@@ -34,8 +28,7 @@ jobs:
           OKX_API_FLAG: ${{ secrets.OKX_API_FLAG }}
         run: |
           ssh root@202.182.107.90 <<'EOS'
-            set -eo pipefail
-
+            set -e
             cd /root/kk
             git fetch origin gray
             git reset --hard origin/gray
@@ -55,4 +48,5 @@ jobs:
 
             echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
             docker compose -f docker-compose.gray.yml pull core
-            docker compose -f docker-compose.gray.yml up -d --force-recreate coreEOS
+            docker compose -f docker-compose.gray.yml up -d --force-recreate core
+          EOS
