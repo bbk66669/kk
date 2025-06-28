@@ -1,4 +1,5 @@
 name: deploy-gray
+
 on:
   push:
     branches: [ gray ]
@@ -8,53 +9,75 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Prepare override config
+      - name: Prepare Override Config
         run: |
           rm -rf configs/config.override.yaml
           cp configs/gray.yaml configs/config.override.yaml
 
-      - name: Setup SSH
+      - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Add remote to known_hosts
+      - name: Add Remote to Known Hosts (Strict Check)
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts_temp
+          chmod 600 ~/.ssh/known_hosts_temp
+          if ! ssh-keygen -lf ~/.ssh/known_hosts_temp; then
+            echo "Error: Invalid SSH_KNOWN_HOSTS secret format. Deployment aborted." >&2
+            exit 1
+          fi
+          cat ~/.ssh/known_hosts_temp >> ~/.ssh/known_hosts
+          rm -f ~/.ssh/known_hosts_temp
 
       - name: Deploy Gray on Remote
-        shell: bash
         env:
-          GHCR_PAT:         ${{ secrets.CI_GH_PAT }}
-          OKX_API_KEY:      ${{ secrets.OKX_API_KEY }}
-          OKX_API_SECRET:   ${{ secrets.OKX_API_SECRET }}
+          GHCR_PAT: ${{ secrets.CI_GH_PAT }}
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
           OKX_API_PASSPHRASE: ${{ secrets.OKX_API_PASSPHRASE }}
-          OKX_API_FLAG:     ${{ secrets.OKX_API_FLAG }}
+          OKX_API_FLAG: ${{ secrets.OKX_API_FLAG }}
         run: |
-          ssh -o StrictHostKeyChecking=yes root@202.182.107.90 << 'EOS'
+          ssh -tt root@202.182.107.90 <<'EOS'
             set -eo pipefail
+            export GHCR_PAT
+            export OKX_API_KEY OKX_API_SECRET OKX_API_PASSPHRASE OKX_API_FLAG
 
             cd /root/kk
             git fetch origin gray
             git reset --hard origin/gray
 
-            # Generate .env via echo (no HEREDOC)
-            rm -f .env
-            echo "OKX_API_KEY=${OKX_API_KEY}"     >> .env
-            echo "OKX_API_SECRET=${OKX_API_SECRET}" >> .env
-            echo "OKX_API_PASSPHRASE=${OKX_API_PASSPHRASE}" >> .env
-            echo "OKX_API_FLAG=${OKX_API_FLAG}"    >> .env
-            echo "WEAVIATE_URL=http://weaviate:8080"      >> .env
+            # 终极保险 .env，多行 echo，无论缩进多少都没事
+            echo "OKX_API_KEY=$OKX_API_KEY"         >  .env
+            echo "OKX_API_SECRET=$OKX_API_SECRET"   >> .env
+            echo "OKX_API_PASSPHRASE=$OKX_API_PASSPHRASE" >> .env
+            echo "OKX_API_FLAG=$OKX_API_FLAG"       >> .env
+            echo "WEAVIATE_URL=http://weaviate:8080"     >> .env
             echo "MEILISEARCH_URL=http://meilisearch:7700" >> .env
-            echo "REDIS_URL=redis://redis:6379/0"         >> .env
+            echo "REDIS_URL=redis://redis:6379/0"        >> .env
             echo "USE_LOCAL_LLM=false"                   >> .env
 
-            # Login & deploy
             echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
-            docker compose -f docker-compose.gray.yml pull core
-            docker compose -f docker-compose.gray.yml up -d --force-recreate core
-          EOS
+
+            docker compose -f docker-compose.gray.yml pull core || {
+              echo "[Error] Failed to pull image, check network/GHCR token." >&2
+              docker compose -f docker-compose.gray.yml logs core || true
+              exit 1
+            }
+
+            docker compose -f docker-compose.gray.yml up -d --force-recreate core || {
+              echo "[Error] Failed to start/recreate core, check compose logs." >&2
+              docker compose -f docker-compose.gray.yml logs core || true
+              exit 1
+            }
+
+            sleep 10
+            docker compose -f docker-compose.gray.yml ps | grep core || {
+              echo "[Error] core service not running, check logs." >&2
+              exit 1
+            }EOS
