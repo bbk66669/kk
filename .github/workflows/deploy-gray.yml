@@ -2,15 +2,14 @@ name: deploy-gray
 
 on:
   push:
-    branches: [ gray ] # 当 gray 分支有提交时自动触发
+    branches: [ gray ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Prepare override config
         run: |
@@ -27,9 +26,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
 
+      - name: Docker login (提前本地登陆 GHCR)
+        run: |
+          echo "${{ secrets.CI_GH_PAT }}" | docker login ghcr.io -u bbk66669 --password-stdin
+
       - name: Deploy Gray on Remote
         env:
-          GHCR_PAT: ${{ secrets.CI_GH_PAT }}
           OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
           OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
           OKX_API_PASSPHRASE: ${{ secrets.OKX_API_PASSPHRASE }}
@@ -37,7 +39,6 @@ jobs:
         run: |
           ssh -tt root@202.182.107.90 <<'EOS'
             set -eo pipefail
-            export GHCR_PAT
             export OKX_API_KEY OKX_API_SECRET OKX_API_PASSPHRASE OKX_API_FLAG
 
             cd /root/kk
@@ -53,7 +54,6 @@ jobs:
             echo "REDIS_URL=redis://redis:6379/0"        >> .env
             echo "USE_LOCAL_LLM=false"                   >> .env
 
-            echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
             docker compose -f docker-compose.gray.yml pull core
             docker compose -f docker-compose.gray.yml up -d --force-recreate core
           EOS
