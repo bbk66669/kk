@@ -22,14 +22,19 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Add Remote to known_hosts
+      - name: Add remote to known_hosts
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
 
-      - name: Deploy Gray on Remote
+      - name: Docker Login on Runner (Avoid TTY error)
         env:
           GHCR_PAT: ${{ secrets.CI_GH_PAT }}
+        run: |
+          echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
+
+      - name: Deploy Gray on Remote
+        env:
           OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
           OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
           OKX_API_PASSPHRASE: ${{ secrets.OKX_API_PASSPHRASE }}
@@ -37,12 +42,15 @@ jobs:
         run: |
           ssh -tt root@202.182.107.90 <<'EOS'
             set -eo pipefail
-
+            echo "[1/6] 切换到工作目录"
             cd /root/kk
+
+            echo "[2/6] 拉取最新 gray 分支"
             git fetch origin gray
             git reset --hard origin/gray
 
-            echo "OKX_API_KEY=$OKX_API_KEY" >  .env
+            echo "[3/6] 生成 .env 配置文件"
+            echo "OKX_API_KEY=$OKX_API_KEY" > .env
             echo "OKX_API_SECRET=$OKX_API_SECRET" >> .env
             echo "OKX_API_PASSPHRASE=$OKX_API_PASSPHRASE" >> .env
             echo "OKX_API_FLAG=$OKX_API_FLAG" >> .env
@@ -51,10 +59,13 @@ jobs:
             echo "REDIS_URL=redis://redis:6379/0" >> .env
             echo "USE_LOCAL_LLM=false" >> .env
 
-            echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
+            echo "[4/6] 拉取 core 镜像"
             docker compose -f docker-compose.gray.yml pull core
+
+            echo "[5/6] 重新启动 core 服务"
             docker compose -f docker-compose.gray.yml up -d --force-recreate core
 
-            echo "🎉 部署完成，退出 SSH session"
+            echo "[6/6] 部署完成，10 秒后自动退出"
+            sleep 10
             exit 0
           EOS
