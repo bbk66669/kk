@@ -2,21 +2,22 @@ name: deploy-gray
 
 on:
   push:
-    branches: [ gray ]
+    branches: [ gray ] # 当 gray 分支有提交时自动触发
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: prepare override config
+      - name: Prepare override config
         run: |
           rm -rf configs/config.override.yaml
           cp configs/gray.yaml configs/config.override.yaml
 
-      - name: Setup SSH
+      - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -34,21 +35,23 @@ jobs:
           OKX_API_PASSPHRASE: ${{ secrets.OKX_API_PASSPHRASE }}
           OKX_API_FLAG: ${{ secrets.OKX_API_FLAG }}
         run: |
-          ssh root@202.182.107.90 <<'EOS'
+          ssh -tt root@202.182.107.90 <<'EOS'
             set -eo pipefail
+            export GHCR_PAT
+            export OKX_API_KEY OKX_API_SECRET OKX_API_PASSPHRASE OKX_API_FLAG
+
             cd /root/kk
             git fetch origin gray
             git reset --hard origin/gray
 
-            # 逐行 echo，永远不会多写命令！
-            echo "OKX_API_KEY=$OKX_API_KEY"                 >  .env
-            echo "OKX_API_SECRET=$OKX_API_SECRET"           >> .env
-            echo "OKX_API_PASSPHRASE=$OKX_API_PASSPHRASE"   >> .env
-            echo "OKX_API_FLAG=$OKX_API_FLAG"               >> .env
-            echo "WEAVIATE_URL=http://weaviate:8080"        >> .env
-            echo "MEILISEARCH_URL=http://meilisearch:7700"  >> .env
-            echo "REDIS_URL=redis://redis:6379/0"           >> .env
-            echo "USE_LOCAL_LLM=false"                      >> .env
+            echo "OKX_API_KEY=$OKX_API_KEY"         >  .env
+            echo "OKX_API_SECRET=$OKX_API_SECRET"   >> .env
+            echo "OKX_API_PASSPHRASE=$OKX_API_PASSPHRASE" >> .env
+            echo "OKX_API_FLAG=$OKX_API_FLAG"       >> .env
+            echo "WEAVIATE_URL=http://weaviate:8080"     >> .env
+            echo "MEILISEARCH_URL=http://meilisearch:7700" >> .env
+            echo "REDIS_URL=redis://redis:6379/0"        >> .env
+            echo "USE_LOCAL_LLM=false"                   >> .env
 
             echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
             docker compose -f docker-compose.gray.yml pull core
