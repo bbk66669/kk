@@ -1,5 +1,6 @@
 import logging
 import weaviate
+import os
 
 # TradeLog schema 定义
 _SCHEMA = {
@@ -23,11 +24,11 @@ _SCHEMA = {
 
 def get_client():
     return weaviate.connect_to_custom(
-        http_host="localhost",
-        http_port=8080,
+        http_host=os.getenv("WEAVIATE_HOST", "infra-weaviate-1"),
+        http_port=int(os.getenv("WEAVIATE_PORT", 8080)),
         http_secure=False,
-        grpc_host="localhost",
-        grpc_port=50051,
+        grpc_host=os.getenv("WEAVIATE_HOST", "infra-weaviate-1"),
+        grpc_port=int(os.getenv("WEAVIATE_GRPC", 50051)),
         grpc_secure=False,
     )
 
@@ -35,7 +36,6 @@ def ensure_schema():
     client = None
     try:
         client = get_client()
-        # v4 客户端中要通过 schema_api 访问 schema 接口
         schema = client.schema_api.get()
         classes = [c["class"] for c in schema.get("classes", [])]
 

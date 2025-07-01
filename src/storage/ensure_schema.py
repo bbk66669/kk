@@ -2,6 +2,7 @@
 import logging
 import requests
 import json
+import os
 
 # TradeLog schema 定义
 _SCHEMA = {
@@ -26,7 +27,7 @@ _SCHEMA = {
   ]
 }
 
-BASE_URL = "http://localhost:8080"
+BASE_URL = os.getenv("WEAVIATE_URL", "http://infra-weaviate-1:8080")
 
 def get_schema():
     resp = requests.get(f"{BASE_URL}/v1/schema")

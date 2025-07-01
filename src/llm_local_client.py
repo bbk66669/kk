@@ -1,6 +1,6 @@
-import requests, logging, functools, asyncio, time
+import requests, logging, functools, asyncio, time, os
 
-OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://infra-ollama-1:11434/api/generate")
 MODEL      = "gemma:2b-instruct-q4_K_M"    # ← 如果要换模型，只改这里
 
 def _call_ollama(prompt: str, temperature=0.2, read_timeout=300):

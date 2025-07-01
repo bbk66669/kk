@@ -41,13 +41,7 @@ import openai, okx.Account as _acct
 
 # ── 全局配置 / 对象 ─────────────────────────────────────────────
 cfg        = load_cfg()
-
-USE_LOCAL = os.getenv("USE_LOCAL_LLM", "true").lower() == "true"
-if USE_LOCAL:
-    event_cls  = EventClassifier(**cfg["event_cls"])
-else:
-    event_cls = None          # 跳过 Gemma & intent cache 流程
-
+event_cls  = EventClassifier(**cfg["event_cls"])
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 _gpt_lock  = asyncio.Lock()
@@ -184,9 +178,7 @@ async def main():
 
             cache_key = {"sym": broker.symbol, "side": direction,
                          "zone": round(price * 500) / 500}
-            significant = False
-            if event_cls is not None:
-                significant = event_cls.push(price) and not hit_or_set(cache_key)
+            significant = event_cls.push(price) and not hit_or_set(cache_key)
 
             if significant:
                 sig, prompt, extra = await llm_decide(price, pos, broker.spec)

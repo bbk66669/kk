@@ -1,6 +1,6 @@
-﻿import hashlib, redis, os, json, time
+import hashlib, redis, os, json, time
 
-_REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
+_REDIS_URL = os.getenv("REDIS_URL", "redis://infra-redis-1:6379/0")
 _redis     = redis.from_url(_REDIS_URL)
 
 TTL_SEC = int(os.getenv("INTENT_TTL", "120"))
@@ -15,4 +15,3 @@ def hit_or_set(intent: dict) -> bool:
         return True
     _redis.setex(k, TTL_SEC, int(time.time()))
     return False
-

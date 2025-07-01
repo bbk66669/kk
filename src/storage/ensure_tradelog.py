@@ -6,19 +6,16 @@ from weaviate.connect import ConnectionParams
 from weaviate import WeaviateClient, exceptions as wexc
 from weaviate.collections.classes.config import Property, DataType
 
-
 # ------------ 运行时配置 ------------
-HOST      = os.getenv("WEAVIATE_HOST", "localhost")
-PORT      = int(os.getenv("WEAVIATE_PORT", 8080))
+BASE_URL  = os.getenv("WEAVIATE_URL", "http://infra-weaviate-1:8080")
 GRPC_PORT = int(os.getenv("WEAVIATE_GRPC", 50051))
 USE_GRPC  = bool(int(os.getenv("WEAVIATE_USE_GRPC", "1")))  # 1=启用 0=禁用
 # -----------------------------------
 
-
 @contextmanager
 def weaviate_conn():
     params = ConnectionParams.from_url(
-        f"http://{HOST}:{PORT}",
+        BASE_URL,
         grpc_port=GRPC_PORT if USE_GRPC else None,
     )
     client = WeaviateClient(connection_params=params, skip_init_checks=True)
@@ -27,7 +24,6 @@ def weaviate_conn():
         yield client
     finally:
         client.close()
-
 
 def ensure_tradelog():
     with weaviate_conn() as client:
@@ -53,11 +49,9 @@ def ensure_tradelog():
                 Property(name="prompt",       data_type=DataType.TEXT),
                 Property(name="extra",        data_type=DataType.TEXT),
             ],
-            # 不传 vectorizer_config == 关闭自动向量化
         )
 
         print("✅ TradeLog collection created.")
-
 
 if __name__ == "__main__":
     try:
