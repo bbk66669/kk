@@ -9,14 +9,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: prepare override config
+      - name: Prepare Override Config
         run: |
           rm -rf configs/config.override.yaml
           cp configs/gray.yaml configs/config.override.yaml
 
-      - name: Setup SSH
+      - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -26,30 +27,72 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
 
-      - name: Deploy Gray on Remote
+      - name: Docker Login on Runner (Avoid TTY error)
+        env:
+          GHCR_PAT: ${{ secrets.CI_GH_PAT }}
         run: |
-          ssh root@202.182.107.90 <<'EOS'
-            set -e
-            export GHCR_PAT='${{ secrets.CI_GH_PAT }}'
+          echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
 
+      - name: Deploy Gray on Remote
+        env:
+          OKX_API_KEY: ${{ secrets.OKX_API_KEY }}
+          OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
+          OKX_API_PASSPHRASE: ${{ secrets.OKX_API_PASSPHRASE }}
+          OKX_API_FLAG: ${{ secrets.OKX_API_FLAG }}
+          BINANCE_API_KEY: ${{ secrets.BINANCE_API_KEY }}
+          BINANCE_API_SECRET: ${{ secrets.BINANCE_API_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          ssh -tt root@202.182.107.90 <<'EOS'
+            set -eo pipefail
+            echo "[1/6] 切换到工作目录"
             cd /root/kk
+
+            echo "[2/6] 拉取最新 gray 分支"
             git fetch origin gray
             git reset --hard origin/gray
 
-            # 写入 .env（顶格无缩进）
-            cat > .env <<'EOV'
-OKX_API_KEY=${{ secrets.OKX_API_KEY }}
-OKX_API_SECRET=${{ secrets.OKX_API_SECRET }}
-OKX_API_PASSPHRASE=${{ secrets.OKX_API_PASSPHRASE }}
-OKX_API_FLAG=${{ secrets.OKX_API_FLAG }}
+            echo "[3/6] 生成 .env 配置文件"
+            echo "OKX_API_KEY=$OKX_API_KEY" > .env
+            echo "OKX_API_SECRET=$OKX_API_SECRET" >> .env
+            echo "OKX_API_PASSPHRASE=$OKX_API_PASSPHRASE" >> .env
+            echo "OKX_API_FLAG=$OKX_API_FLAG" >> .env
 
-WEAVIATE_URL=http://weaviate:8080
-MEILISEARCH_URL=http://meilisearch:7700
-REDIS_URL=redis://redis:6379/0
-USE_LOCAL_LLM=false
-EOV
+            # 币安
+            echo "BINANCE_API_KEY=$BINANCE_API_KEY" >> .env
+            echo "BINANCE_API_SECRET=$BINANCE_API_SECRET" >> .env
 
-            echo "$GHCR_PAT" | docker login ghcr.io -u bbk66669 --password-stdin
+            # OpenAI
+            echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
+
+            # 向量存储 (Weaviate)
+            echo "WEAVIATE_URL=http://infra-weaviate-1:8080" >> .env
+
+            # Redis
+            echo "REDIS_URL=redis://infra-redis-1:6379/0" >> .env
+
+            # Meilisearch
+            echo "MEILISEARCH_URL=http://infra-meilisearch-1:7700" >> .env
+
+            # Ollama
+            echo "OLLAMA_URL=http://infra-ollama-1:11434" >> .env
+
+            # 日志 & 调度
+            echo "LOG_LEVEL=INFO" >> .env
+
+            # 风控参数
+            echo "RISK_PCT=0.01" >> .env
+            echo "SL_PCT=0.01" >> .env
+            echo "TP_PCT=0.02" >> .env
+            echo "SIM_CAPITAL=300" >> .env
+
+            echo "[4/6] 拉取 core 镜像"
             docker compose -f docker-compose.gray.yml pull core
+
+            echo "[5/6] 重新启动 core 服务"
             docker compose -f docker-compose.gray.yml up -d --force-recreate core
+
+            echo "[6/6] 部署完成，10 秒后自动退出"
+            sleep 10
+            exit 0
           EOS
