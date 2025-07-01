@@ -1,35 +1,43 @@
 version: "3.9"
 
 services:
-  redis:
+  infra-redis-1:
     image: redis:7
     restart: always
     networks: [core-net]
 
-  meilisearch:
+  infra-meilisearch-1:
     image: getmeili/meilisearch:latest
     environment:
       MEILI_MASTER_KEY: ${MEILI_KEY:-changeme}
     restart: always
     networks: [core-net]
 
-  weaviate:
+  infra-weaviate-1:
     image: semitechnologies/weaviate:1.26
     environment:
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
     restart: always
     networks: [core-net]
 
+  infra-ollama-1:
+    image: ollama/ollama:latest
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - /usr/share/ollama/.ollama/models:/root/.ollama/models
+    networks: [core-net]
+
   core:
     build: .
     env_file:
-      - .env            # 这里放 OKX / OPENAI 等密钥
+      - .env
     depends_on:
-      - redis
-      - meilisearch
-      - weaviate
+      - infra-redis-1
+      - infra-meilisearch-1
+      - infra-weaviate-1
     networks: [core-net]
-    # 只要 expose Prometheus 就行，如有别的端口自己加
     ports:
       - "8000:8000"
 

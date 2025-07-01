@@ -1,7 +1,7 @@
 services:
   core:
-    image: ghcr.io/bbk66669/core:latest   # ← 与 workflow 同步
-    restart: always                       # 灰度跑长期时建议加
+    image: ghcr.io/bbk66669/core:latest
+    restart: always
     env_file:
       - .env
     environment:
@@ -10,8 +10,9 @@ services:
     volumes:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
     networks:
-      - windking-net          # 👈 挂到同一网络
+      - windking-net
+    container_name: core-gray  # 可选：给主服务命名
 
 networks:
-  windking-net:               # 👈 声明 external
+  windking-net:
     external: true
