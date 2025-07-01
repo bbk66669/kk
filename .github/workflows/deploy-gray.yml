@@ -39,6 +39,9 @@ jobs:
           OKX_API_SECRET: ${{ secrets.OKX_API_SECRET }}
           OKX_API_PASSPHRASE: ${{ secrets.OKX_API_PASSPHRASE }}
           OKX_API_FLAG: ${{ secrets.OKX_API_FLAG }}
+          BINANCE_API_KEY: ${{ secrets.BINANCE_API_KEY }}
+          BINANCE_API_SECRET: ${{ secrets.BINANCE_API_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           ssh -tt root@202.182.107.90 <<'EOS'
             set -eo pipefail
@@ -54,10 +57,34 @@ jobs:
             echo "OKX_API_SECRET=$OKX_API_SECRET" >> .env
             echo "OKX_API_PASSPHRASE=$OKX_API_PASSPHRASE" >> .env
             echo "OKX_API_FLAG=$OKX_API_FLAG" >> .env
-            echo "WEAVIATE_URL=http://weaviate:8080" >> .env
-            echo "MEILISEARCH_URL=http://meilisearch:7700" >> .env
-            echo "REDIS_URL=redis://redis:6379/0" >> .env
-            echo "USE_LOCAL_LLM=false" >> .env
+
+            # 币安
+            echo "BINANCE_API_KEY=$BINANCE_API_KEY" >> .env
+            echo "BINANCE_API_SECRET=$BINANCE_API_SECRET" >> .env
+
+            # OpenAI
+            echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
+
+            # 向量存储 (Weaviate)
+            echo "WEAVIATE_URL=http://infra-weaviate-1:8080" >> .env
+
+            # Redis
+            echo "REDIS_URL=redis://infra-redis-1:6379/0" >> .env
+
+            # Meilisearch
+            echo "MEILISEARCH_URL=http://infra-meilisearch-1:7700" >> .env
+
+            # Ollama
+            echo "OLLAMA_URL=http://infra-ollama-1:11434" >> .env
+
+            # 日志 & 调度
+            echo "LOG_LEVEL=INFO" >> .env
+
+            # 风控参数
+            echo "RISK_PCT=0.01" >> .env
+            echo "SL_PCT=0.01" >> .env
+            echo "TP_PCT=0.02" >> .env
+            echo "SIM_CAPITAL=300" >> .env
 
             echo "[4/6] 拉取 core 镜像"
             docker compose -f docker-compose.gray.yml pull core
