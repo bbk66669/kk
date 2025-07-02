@@ -1,6 +1,7 @@
 services:
   core:
-    image: ghcr.io/bbk66669/core:latest
+    build:
+      context: .
     restart: always
     env_file:
       - .env
@@ -11,7 +12,7 @@ services:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
     networks:
       - windking-net
-    container_name: core-gray  # 可选：给主服务命名
+    container_name: core-gray
 
 networks:
   windking-net:
