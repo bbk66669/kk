@@ -1,7 +1,6 @@
 services:
   core:
-    build:
-      context: .
+    image: core-gray-fixed   # ← 用你刚才 commit 的镜像名
     restart: always
     env_file:
       - .env
