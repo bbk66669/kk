@@ -67,6 +67,7 @@ jobs:
 
             # 向量存储 (Weaviate)
             echo "WEAVIATE_URL=http://infra-weaviate-1:8080" >> .env
+            echo "WEAVIATE_HOST=infra-weaviate-1" >> .env  # ← 关键新增！
 
             # Redis
             echo "REDIS_URL=redis://infra-redis-1:6379/0" >> .env
