@@ -2,9 +2,7 @@ version: "3.8"
 
 services:
   core:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/bbk66669/core:latest    # ← 改成最新的 latest tag
     restart: always
     env_file:
       - .env
