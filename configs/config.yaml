@@ -18,7 +18,7 @@ trade:
   leverage: 5
 
 redis:
-  host: localhost
+  host: infra-redis-1
   port: 6379
 
 intent:

@@ -1,6 +1,10 @@
+version: "3.8"
+
 services:
   core:
-    image: core-gray-fixed   # ← 用你刚才 commit 的镜像名
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
     env_file:
       - .env

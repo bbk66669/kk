@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import warnings, asyncio, logging, os, time, json, signal
 
-warnings.filterwarnings("ignore", category=ResourceWarning)
+# ─── 全面屏蔽所有警告 ─────────────────────────────────────────────
+warnings.simplefilter("ignore")
 
 # ── Prometheus server ───────────────────────────────────────────
 from prometheus_client import start_http_server

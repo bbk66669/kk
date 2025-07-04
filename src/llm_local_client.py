@@ -1,4 +1,8 @@
 import requests, logging, functools, asyncio, time, os
+from dotenv import load_dotenv
+
+# 加载 .env 文件中的环境变量
+load_dotenv()
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://infra-ollama-1:11434/api/generate")
 MODEL      = "gemma:2b-instruct-q4_K_M"    # ← 如果要换模型，只改这里
