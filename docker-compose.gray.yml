@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   core:
-    image: ghcr.io/bbk66669/core:latest    # ← 改成最新的 latest tag
+    image: ghcr.io/bbk66669/core:latest
     restart: always
     env_file:
       - .env
@@ -13,8 +13,11 @@ services:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
     networks:
       - windking-net
+      - core-net       # ← 新增这一行
     container_name: core-gray
 
 networks:
   windking-net:
     external: true
+  core-net:
+    external: true     # ← 并且声明 core-net 是 external
