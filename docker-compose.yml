@@ -18,6 +18,9 @@ services:
     environment:
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
     restart: always
+    ports:
+      - "8080:8080"
+      - "50051:50051"
     networks: [core-net]
 
   infra-ollama-1:
