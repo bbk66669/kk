@@ -1,0 +1,39 @@
+[
+    {
+        "Name": "core-net",
+        "Id": "20cce30ba80dceef4f4179b25bcd2aac47c140c54e554212977652031a953995",
+        "Created": "2025-07-04T09:19:12.222302835Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.19.0.0/16",
+                    "Gateway": "172.19.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "a993b8616e097e8385d39c2c976930395eef6b357d81b330da523db167a8de6c": {
+                "Name": "core-gray",
+                "EndpointID": "532ed2662de6cf905abc5b686f6cbd5084b2e99004444ba84ede6cb2fab02407",
+                "MacAddress": "62:8f:f9:48:9f:58",
+                "IPv4Address": "172.19.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]

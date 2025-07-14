@@ -1,0 +1,79 @@
+[
+    {
+        "Name": "windking-net",
+        "Id": "4dc7099f5ce5e2f6ef94e917c3562efd87f936c4afd87ad4b981f15d60c6c6a8",
+        "Created": "2025-06-27T15:19:21.337221429Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.24.0.0/16",
+                    "Gateway": "172.24.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "0eb16453a3f6cd9f31da435b1af3045087121a9ef3126299430cec5c49f65b64": {
+                "Name": "infra_weaviate_1",
+                "EndpointID": "94032489af532df4c404f8dd3717d4c8eff5aa72beb3d1652510af8e82ad0bb0",
+                "MacAddress": "a2:d4:c8:f3:45:8a",
+                "IPv4Address": "172.24.0.5/16",
+                "IPv6Address": ""
+            },
+            "8d5a51c236cdb273550200a365e8dca97a90d880d78912b63d027e64f25f6e1a": {
+                "Name": "infra_infra-ollama-1_1",
+                "EndpointID": "2b789037f2836fbf36d68140c3e189cdcf646390824f0c7758dbea1760e8bc54",
+                "MacAddress": "62:28:aa:3f:63:4a",
+                "IPv4Address": "172.24.0.2/16",
+                "IPv6Address": ""
+            },
+            "9da8e0c1edeb901a1b260db3910055ae3b431d33498877255570cac9f989a353": {
+                "Name": "infra_redis_1",
+                "EndpointID": "4baa6663dbcb0f0eeed1ddfee7363b5b4a08dd7f2b7dc1f617418edba5206fe5",
+                "MacAddress": "6a:9c:71:be:14:3e",
+                "IPv4Address": "172.24.0.4/16",
+                "IPv6Address": ""
+            },
+            "a993b8616e097e8385d39c2c976930395eef6b357d81b330da523db167a8de6c": {
+                "Name": "core-gray",
+                "EndpointID": "2315d0d49c6908c39fb16a02db3b7c6836e5017dd06a8ac5996788a3a65e7b41",
+                "MacAddress": "3e:83:3e:47:95:31",
+                "IPv4Address": "172.24.0.6/16",
+                "IPv6Address": ""
+            },
+            "d773cab2b5cbc6153b76a5351f74964e54ff3652b53f176e32ebf1a5b092d37e": {
+                "Name": "infra_meilisearch_1",
+                "EndpointID": "3453a5d69e8c61ac6778e8062c974dcdb0b0d1ad45fef860602749e81f664a74",
+                "MacAddress": "06:63:11:6d:0a:4f",
+                "IPv4Address": "172.24.0.3/16",
+                "IPv6Address": ""
+            },
+            "db8ee5382c710cd6af3afbe720786b5b9e5d279197d0fff85cada24b10c44c6a": {
+                "Name": "prom",
+                "EndpointID": "2a9fa6e13f25923ab9671105fdf260b4d342c4c241fdf44ff570958297434e04",
+                "MacAddress": "82:2b:3c:95:a5:c4",
+                "IPv4Address": "172.24.0.7/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {
+            "com.docker.compose.config-hash": "dd5601b6e24873824dadc4ef794b5da498893ce08d6f0770036848fbd7d92f59",
+            "com.docker.compose.network": "default",
+            "com.docker.compose.project": "infra",
+            "com.docker.compose.version": "2.36.2"
+        }
+    }
+]
