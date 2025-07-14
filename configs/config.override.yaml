@@ -1,7 +1,0 @@
-trade:
-  qty_pct: 0.10
-  leverage: 3
-llm:
-  cooldown: 600
-risk:
-  trail_sl_pct: 0.003
