@@ -2,7 +2,7 @@ name: build-push
 
 on:
   push:
-    branches: [ main ]          # 只有 main 才触发正式 build
+    branches: [ main ]  # 只有 main 分支触发正式 build 和上线
 
 env:
   IMAGE_NAME: ghcr.io/bbk66669/core
@@ -45,6 +45,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /root/kk
+            git fetch origin main
+            git reset --hard origin/main
             echo "${{ secrets.CI_GH_PAT }}" | docker login ghcr.io -u bbk66669 --password-stdin
             docker compose -f docker-compose.yml pull core
             docker compose -f docker-compose.yml up -d --force-recreate core
