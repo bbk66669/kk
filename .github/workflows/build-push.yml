@@ -10,7 +10,7 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    permissions:                 # 让 Actions 拿到写 package 权限
+    permissions:
       packages: write
       contents: read
 
@@ -22,7 +22,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.CI_GH_PAT }}   # 你的 classic token，需有 write:packages
+          password: ${{ secrets.CI_GH_PAT }}
 
       - name: Build & push
         uses: docker/build-push-action@v5
@@ -32,3 +32,19 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+  deploy-prod:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy main on remote
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 202.182.107.90
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/kk
+            echo "${{ secrets.CI_GH_PAT }}" | docker login ghcr.io -u bbk66669 --password-stdin
+            docker compose -f docker-compose.yml pull core
+            docker compose -f docker-compose.yml up -d --force-recreate core

@@ -64,6 +64,7 @@ jobs:
             echo TP_PCT='0.02' >> .env &&
             echo SIM_CAPITAL='300' >> .env &&
             echo \"$GHCR_PAT\" | docker login ghcr.io -u bbk66669 --password-stdin &&
-            docker compose -f docker-compose.gray.yml pull core &&
+            docker build -t ghcr.io/bbk66669/core:gray . &&
+            docker push ghcr.io/bbk66669/core:gray &&
             docker compose -f docker-compose.gray.yml up -d --force-recreate core
           "
