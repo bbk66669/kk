@@ -46,3 +46,4 @@ services:
 
 networks:
   core-net:
+    external: true   # ← 只保留这一行
