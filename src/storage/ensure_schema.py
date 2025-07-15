@@ -29,12 +29,20 @@ _SCHEMA = {
 
 BASE_URL = os.getenv("WEAVIATE_URL", "http://infra-weaviate-1:8080")
 
+# ---------- 新增：幂等判断 ----------
+def class_exists(cls_name: str) -> bool:
+    url = f"{BASE_URL}/v1/schema/classes/{cls_name}"
+    return requests.get(url, timeout=5).status_code == 200
+# ------------------------------------
+
 def get_schema():
     resp = requests.get(f"{BASE_URL}/v1/schema")
     resp.raise_for_status()
     return resp.json()
 
 def create_class():
+    if class_exists("TradeLog"):   # 幂等检查
+        return
     resp = requests.post(
         f"{BASE_URL}/v1/schema/classes",
         headers={"Content-Type": "application/json"},
@@ -44,6 +52,7 @@ def create_class():
     logging.info("Weaviate: created TradeLog class")
 
 def add_property(prop):
+    # 如需幂等，可再 GET /schema/TradeLog/properties 检查，这里保持原样
     resp = requests.post(
         f"{BASE_URL}/v1/schema/TradeLog/properties",
         headers={"Content-Type": "application/json"},
