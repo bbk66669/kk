@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   core:
-    image: ghcr.io/bbk66669/core:latest
+    image: ghcr.io/bbk66669/core:gray   # 如果用方案 A
     container_name: core-gray
     restart: always
     env_file:
@@ -10,15 +10,12 @@ services:
     environment:
       TRAIL_SL_PCT: "0.003"
       LLM_COOLDOWN: "600"
-      PYTHONWARNINGS: "ignore::ResourceWarning"  # ← 屏蔽未关闭的 ssl 连接警告
+      PYTHONWARNINGS: "ignore::ResourceWarning"
     volumes:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
     networks:
-      - windking-net
-      - core-net
+      - core-net          # 只保留这一张网
 
 networks:
-  windking-net:
-    external: true
   core-net:
     external: true
