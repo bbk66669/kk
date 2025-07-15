@@ -46,6 +46,8 @@ jobs:
         run: |
           ssh -tt root@202.182.107.90 "
             cd /root/kk &&
+            git fetch origin gray &&
+            git reset --hard origin/gray &&
             echo OKX_API_KEY='${OKX_API_KEY}' > .env &&
             echo OKX_API_SECRET='${OKX_API_SECRET}' >> .env &&
             echo OKX_API_PASSPHRASE='${OKX_API_PASSPHRASE}' >> .env &&
