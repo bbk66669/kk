@@ -43,9 +43,12 @@ jobs:
           BINANCE_API_KEY:    ${{ secrets.BINANCE_API_KEY }}
           BINANCE_API_SECRET: ${{ secrets.BINANCE_API_SECRET }}
           OPENAI_API_KEY:     ${{ secrets.OPENAI_API_KEY }}
+          MEILI_KEY:          ${{ secrets.MEILI_KEY }}            # <<--- 加上 MEILI_KEY
         run: |
           ssh -tt root@202.182.107.90 "
             cd /root/kk &&
+            git fetch origin gray &&
+            git reset --hard origin/gray &&
             echo OKX_API_KEY='${OKX_API_KEY}' > .env &&
             echo OKX_API_SECRET='${OKX_API_SECRET}' >> .env &&
             echo OKX_API_PASSPHRASE='${OKX_API_PASSPHRASE}' >> .env &&
@@ -63,6 +66,7 @@ jobs:
             echo SL_PCT='0.01' >> .env &&
             echo TP_PCT='0.02' >> .env &&
             echo SIM_CAPITAL='300' >> .env &&
+            echo MEILI_KEY='${MEILI_KEY}' >> .env &&      # <<--- 新增
             echo \"$GHCR_PAT\" | docker login ghcr.io -u bbk66669 --password-stdin &&
             docker build -t ghcr.io/bbk66669/core:gray . &&
             docker push ghcr.io/bbk66669/core:gray &&
