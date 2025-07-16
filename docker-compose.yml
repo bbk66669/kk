@@ -10,7 +10,7 @@ services:
     image: getmeili/meilisearch:latest
     environment:
       MEILI_MASTER_KEY: ${MEILI_KEY:-changeme}
-      MEILI_EXPERIMENTAL_FEATURES: "metrics_api"
+      MEILI_EXPERIMENTAL_ENABLE_METRICS: "true"
     restart: always
     networks: [core-net]
 
@@ -47,4 +47,4 @@ services:
 
 networks:
   core-net:
-    external: true   # ← 只保留这一行
+    external: true
