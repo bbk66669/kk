@@ -10,6 +10,7 @@ services:
     image: getmeili/meilisearch:latest
     environment:
       MEILI_MASTER_KEY: ${MEILI_KEY:-changeme}
+      MEILI_EXPERIMENTAL_FEATURES: "metrics_api"
     restart: always
     networks: [core-net]
 
