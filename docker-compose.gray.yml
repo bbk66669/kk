@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   core:
-    image: ghcr.io/bbk66669/core:gray   # 如果用方案 A
+    image: ghcr.io/bbk66669/core:gray
     container_name: core-gray
     restart: always
     env_file:
@@ -11,10 +11,11 @@ services:
       TRAIL_SL_PCT: "0.003"
       LLM_COOLDOWN: "600"
       PYTHONWARNINGS: "ignore::ResourceWarning"
+      PYTHONUNBUFFERED: "1"   # 实时刷新 stdout/stderr
     volumes:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
     networks:
-      - core-net          # 只保留这一张网
+      - core-net
 
 networks:
   core-net:
