@@ -2,7 +2,7 @@
 version: "3.8"
 
 services:
-  core-gray:
+  core:
     image: ghcr.io/bbk66669/core:gray
     container_name: core-gray
     restart: always
