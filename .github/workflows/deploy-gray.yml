@@ -12,6 +12,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Set GIT_SHA
+        run: echo "GIT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Prepare Override Config
         run: |
           rm -rf configs/config.override.yaml
@@ -43,7 +46,7 @@ jobs:
           BINANCE_API_KEY:    ${{ secrets.BINANCE_API_KEY }}
           BINANCE_API_SECRET: ${{ secrets.BINANCE_API_SECRET }}
           OPENAI_API_KEY:     ${{ secrets.OPENAI_API_KEY }}
-          MEILI_KEY:          ${{ secrets.MEILI_KEY }}            # <<--- 加上 MEILI_KEY
+          MEILI_KEY:          ${{ secrets.MEILI_KEY }}
         run: |
           ssh -tt root@202.182.107.90 "
             cd /root/kk &&
@@ -66,7 +69,7 @@ jobs:
             echo SL_PCT='0.01' >> .env &&
             echo TP_PCT='0.02' >> .env &&
             echo SIM_CAPITAL='300' >> .env &&
-            echo MEILI_KEY='${MEILI_KEY}' >> .env &&      # <<--- 新增
+            echo MEILI_KEY='${MEILI_KEY}' >> .env &&
             echo \"$GHCR_PAT\" | docker login ghcr.io -u bbk66669 --password-stdin &&
             docker build -t ghcr.io/bbk66669/core:gray . &&
             docker push ghcr.io/bbk66669/core:gray &&
