@@ -14,6 +14,8 @@ services:
       PYTHONUNBUFFERED: "1"
     volumes:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
+    ports:
+      - "8001:8000"   # ✅ 添加：将容器8000端口映射为宿主机8001
     networks:
       - core-net
     labels:
