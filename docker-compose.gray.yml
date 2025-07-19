@@ -1,13 +1,18 @@
+# docker-compose.gray.yml
 version: "3.8"
 
 services:
-  core:
+  core-gray:
     image: ghcr.io/bbk66669/core:gray
     container_name: core-gray
     restart: always
     env_file:
-      - .env
+      - .env            # 如果 .env 里有冲突变量，下面 environment 会覆盖
     environment:
+      # 关键：让 Prometheus 指标端口固定到 8001
+      METRICS_PORT: "8001"
+
+      # 其余保持与原灰度相同
       TRAIL_SL_PCT: "0.003"
       LLM_COOLDOWN: "600"
       PYTHONWARNINGS: "ignore::ResourceWarning"
@@ -15,7 +20,8 @@ services:
     volumes:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
     ports:
-      - "8001:8000"   # ✅ 添加：将容器8000端口映射为宿主机8001
+      # 宿主机 8001 → 容器 8001
+      - "8001:8001"
     networks:
       - core-net
     labels:
