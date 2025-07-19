@@ -25,7 +25,11 @@ services:
   infra-weaviate-1:
     container_name: kingbrain-weaviate
     image: semitechnologies/weaviate:1.31.5
-    command: ["--host", "0.0.0.0", "--port", "8080", "--scheme", "http", "--prometheus-port", "8080"]
+    command:
+      - "--host=0.0.0.0"
+      - "--port=8080"
+      - "--scheme=http"
+      - "--prometheus-port=2112"
     environment:
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
       PROMETHEUS_MONITORING_ENABLED: "true"
@@ -33,6 +37,7 @@ services:
     ports:
       - "8080:8080"
       - "50051:50051"
+      - "2112:2112"
     networks: [core-net]
     labels:
       org.stack: kingbrain
