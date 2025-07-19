@@ -2,19 +2,28 @@ version: "3.9"
 
 services:
   infra-redis-1:
+    container_name: kingbrain-redis
     image: redis:7
     restart: always
     networks: [core-net]
+    labels:
+      org.stack: kingbrain
+      org.git.sha: "${GIT_SHA:-unknown}"
 
   infra-meilisearch-1:
+    container_name: kingbrain-meilisearch
     image: getmeili/meilisearch:latest
     environment:
       MEILI_MASTER_KEY: ${MEILI_KEY:-changeme}
       MEILI_EXPERIMENTAL_ENABLE_METRICS: "true"
     restart: always
     networks: [core-net]
+    labels:
+      org.stack: kingbrain
+      org.git.sha: "${GIT_SHA:-unknown}"
 
   infra-weaviate-1:
+    container_name: kingbrain-weaviate
     image: semitechnologies/weaviate:1.31.5
     environment:
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
@@ -23,8 +32,12 @@ services:
       - "8080:8080"
       - "50051:50051"
     networks: [core-net]
+    labels:
+      org.stack: kingbrain
+      org.git.sha: "${GIT_SHA:-unknown}"
 
   infra-ollama-1:
+    container_name: kingbrain-ollama
     image: ollama/ollama:latest
     restart: always
     ports:
@@ -32,8 +45,12 @@ services:
     volumes:
       - /usr/share/ollama/.ollama/models:/root/.ollama/models
     networks: [core-net]
+    labels:
+      org.stack: kingbrain
+      org.git.sha: "${GIT_SHA:-unknown}"
 
   core:
+    container_name: kingbrain-core
     build: .
     env_file:
       - .env
@@ -44,6 +61,9 @@ services:
     networks: [core-net]
     ports:
       - "8000:8000"
+    labels:
+      org.stack: kingbrain
+      org.git.sha: "${GIT_SHA:-unknown}"
 
 networks:
   core-net:

@@ -11,11 +11,14 @@ services:
       TRAIL_SL_PCT: "0.003"
       LLM_COOLDOWN: "600"
       PYTHONWARNINGS: "ignore::ResourceWarning"
-      PYTHONUNBUFFERED: "1"   # 实时刷新 stdout/stderr
+      PYTHONUNBUFFERED: "1"
     volumes:
       - ./configs/config.override.yaml:/app/configs/config.override.yaml:ro
     networks:
       - core-net
+    labels:
+      org.stack: kingbrain
+      org.git.sha: "${GIT_SHA:-unknown}"
 
 networks:
   core-net:
