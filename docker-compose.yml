@@ -2,11 +2,13 @@ version: "3.9"
 
 services:
   infra-redis-1:
+    container_name: kingbrain-redis
     image: redis:7
     restart: always
     networks: [core-net]
 
   infra-meilisearch-1:
+    container_name: kingbrain-meilisearch
     image: getmeili/meilisearch:latest
     environment:
       MEILI_MASTER_KEY: ${MEILI_KEY:-changeme}
@@ -15,6 +17,7 @@ services:
     networks: [core-net]
 
   infra-weaviate-1:
+    container_name: kingbrain-weaviate
     image: semitechnologies/weaviate:1.31.5
     environment:
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
@@ -25,6 +28,7 @@ services:
     networks: [core-net]
 
   infra-ollama-1:
+    container_name: kingbrain-ollama
     image: ollama/ollama:latest
     restart: always
     ports:
@@ -34,6 +38,7 @@ services:
     networks: [core-net]
 
   core:
+    container_name: kingbrain-core
     build: .
     env_file:
       - .env
