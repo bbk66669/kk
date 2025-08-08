@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4#
+        uses: actions/checkout@v4
 
       - name: Set GIT_SHA
         run: echo "GIT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
