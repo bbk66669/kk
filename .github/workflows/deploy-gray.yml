@@ -48,7 +48,7 @@ jobs:
           OPENAI_API_KEY:     ${{ secrets.OPENAI_API_KEY }}
           MEILI_KEY:          ${{ secrets.MEILI_KEY }}
         run: |
-          ssh -tt root@202.182.107.90 "
+          ssh -tt root@45.76.182.151"
             cd /root/kk &&
             git fetch origin gray &&
             git reset --hard origin/gray &&
