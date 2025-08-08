@@ -43,7 +43,7 @@ jobs:
       - name: Deploy main on remote
         uses: appleboy/ssh-action@v1
         with:
-          host: 202.182.107.90
+          host: 45.76.182.151
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
